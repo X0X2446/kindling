@@ -102,6 +102,77 @@ export function runBash(code: string, stdin = ""): { stdout: string; error?: str
         i = j + 1;
         continue;
       }
+      if (raw.startsWith("if ")) {
+        let depth = 0;
+        let elseAt = -1;
+        let fi = -1;
+        for (let j = i; j < end; j++) {
+          const probe = lines[j].trim();
+          if (probe.startsWith("if ")) depth++;
+          else if (probe === "fi") {
+            depth--;
+            if (depth === 0) {
+              fi = j;
+              break;
+            }
+          } else if (probe === "else" && depth === 1) elseAt = j;
+        }
+        if (fi < 0) throw new Error("if needs a matching fi");
+        const ok = condition(raw.slice(3), frame);
+        if (ok) runRange(i + 1, elseAt < 0 ? fi : elseAt);
+        else if (elseAt >= 0) runRange(elseAt + 1, fi);
+        i = fi + 1;
+        continue;
+      }
+      if (raw.startsWith("while ")) {
+        let depth = 0;
+        let done = -1;
+        for (let j = i; j < end; j++) {
+          const probe = lines[j].trim();
+          if ((probe.startsWith("while ") || probe.startsWith("for ")) && probe.endsWith("do")) depth++;
+          else if (probe === "done") {
+            depth--;
+            if (depth === 0) {
+              done = j;
+              break;
+            }
+          }
+        }
+        if (done < 0) throw new Error("while needs done");
+        let guard = 0;
+        while (condition(raw.slice(6), frame)) {
+          guard++;
+          if (guard > 10000) throw new Error("This ran too long. Look for a loop that never ends.");
+          runRange(i + 1, done);
+        }
+        i = done + 1;
+        continue;
+      }
+      if (raw.startsWith("for ")) {
+        const match = raw.match(/^for\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+);\s*do$/);
+        if (!match) throw new Error("Use for name in a b c; do");
+        let depth = 0;
+        let done = -1;
+        for (let j = i; j < end; j++) {
+          const probe = lines[j].trim();
+          if ((probe.startsWith("while ") || probe.startsWith("for ")) && probe.endsWith("do")) depth++;
+          else if (probe === "done") {
+            depth--;
+            if (depth === 0) {
+              done = j;
+              break;
+            }
+          }
+        }
+        if (done < 0) throw new Error("for needs done");
+        const items = splitWords(match[2]).map((word) => expand(word, frame));
+        for (const item of items) {
+          frame.vars.set(match[1], item);
+          runRange(i + 1, done);
+        }
+        i = done + 1;
+        continue;
+      }
       if (raw === "return") throw new BashReturn();
       const assign = raw.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
       if (assign) {
