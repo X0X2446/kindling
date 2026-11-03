@@ -70,7 +70,7 @@ export default function HomePage() {
         </div>
         <div>
           <h2 className="text-lg">Run it here</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">Python, JavaScript, TypeScript, Lua, SQL, Bash, and HTML run here. The other languages use a teaching interpreter, so you never install a compiler.</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">Python, JavaScript, TypeScript, Lua, SQL, Bash, and HTML run here. C++ is compiled with g++ on the server, with a time limit, a memory limit, and no network. Java, C, C#, Kotlin, Swift, Dart, Go, Rust, PHP, Ruby, and R use a teaching interpreter.</p>
         </div>
         <div>
           <h2 className="text-lg">Then go further</h2>

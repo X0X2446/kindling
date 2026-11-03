@@ -60,8 +60,8 @@ export const cppCourse: Course = {
   resources: [
     { kind: "docs", label: "LearnCpp.com", href: "https://www.learncpp.com/" },
     { kind: "docs", label: "cppreference", href: "https://en.cppreference.com/w/cpp" },
-    { kind: "video", label: "freeCodeCamp \u2014 C++", href: "https://www.youtube.com/watch?v=vLnPwxZdW4Y" },
-    { kind: "video", label: "Bro Code \u2014 C++", href: "https://www.youtube.com/watch?v=-TkoO8Z07hI" },
+    { kind: "video", label: "freeCodeCamp — C++", href: "https://www.youtube.com/watch?v=vLnPwxZdW4Y" },
+    { kind: "video", label: "Bro Code — C++", href: "https://www.youtube.com/watch?v=-TkoO8Z07hI" },
   ],
   next: ["c", "cpp-games", "unreal"],
 };

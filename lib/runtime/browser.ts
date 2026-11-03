@@ -8,7 +8,7 @@ import { runSql } from "./sql-run";
 import { stripTypes } from "./strip-ts";
 import type { CanvasFrame, RunOutput, Runner } from "./types";
 
-const interpreted = new Set<Runner>(["java", "cpp", "csharp", "kotlin", "swift", "dart"]);
+const interpreted = new Set<Runner>(["java", "csharp", "kotlin", "swift", "dart"]);
 const polyglot = new Set<Runner>(["go", "rust", "php", "ruby", "r"]);
 
 type WorkerReply = {
@@ -109,15 +109,18 @@ export async function runCode(
     const split = splitWidgets(result.stdout ?? "");
     return { code, stdout: split.text, error: result.error, widgets: split.widgets };
   }
-  if (runner === "lua") {
+  if (runner === "lua" || runner === "cpp") {
     const response = await fetch("/api/run", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ runner: "lua", code, stdin }),
+      body: JSON.stringify({ runner, code, stdin }),
     });
-    if (!response.ok) return { code, stdout: "", error: "The Lua runner could not start." };
+    if (!response.ok) {
+      const failed = (await response.json().catch(() => null)) as { error?: string } | null;
+      return { code, stdout: "", error: failed?.error || (runner === "cpp" ? "The C++ compiler could not start." : "The Lua runner could not start.") };
+    }
     const result = (await response.json()) as { stdout?: string; error?: string };
-    return { code, stdout: result.stdout ?? "", error: result.error };
+    return { code, stdout: result.stdout ?? "", error: result.error, frames: runner === "cpp" ? parseFrames(result.stdout ?? "") : undefined };
   }
   if (interpreted.has(runner)) {
     const result = runInterpreted(runner as Lang, code, stdin);
