@@ -76,27 +76,27 @@ const NIL: Value = { k: "nil" };
 const MODS = new Set(["public", "private", "protected", "static", "final", "const", "override"]);
 const PREC: Record<string, number> = {
   "=": 1,
-  "+=": 1,
-  "-=": 1,
-  "*=": 1,
-  "/=": 1,
-  "||": 2,
-  "&&": 3,
-  "==": 4,
-  "!=": 4,
-  "<": 5,
-  ">": 5,
-  "<=": 5,
-  ">=": 5,
-  "..": 6,
-  "...": 6,
-  "..<": 6,
-  "+": 7,
-  "-": 7,
-  "*": 8,
-  "/": 8,
-  "%": 8,
-  "~/": 8,
+  "+=": : 1,
+  "-=": : 1,
+  "*=" : 1,
+  "/=" : 1,
+  "||": : 2,
+  "&&" : 3,
+  "==" : 4,
+  "!=" : 4,
+  "<" : 5,
+  ">" : 5,
+  "<=" : 5,
+  ">=" : 5,
+  ".." : 6,
+  "..." : 6,
+  "..<" : 6,
+  "+" : 7,
+  "-" : 7,
+  "*" : 8,
+  "/" : 8,
+  "%" : 8,
+  "~/" : 8,
 };
 const RIGHT = new Set(["=", "+=", "-=", "*=", "/="]);
 const OPS = ["..<", "...", "..", "->", "::", "~/", "==", "!=", "<=", ">=", "&&", "||", "++", "--", "+=", "-=", "*=", "/=", "<<", ">>", "+", "-", "*", "/", "%", "=", "<", ">", "!"];
@@ -1085,6 +1085,21 @@ class Runtime {
   callName(name: string, args: Value[], line: number): Value {
     const fn = this.funcs.get(name);
     if (fn) return this.call(fn, args, line);
+    if (name === "readInt") return this.readInt();
+    if (name === "readln" || name === "readLine") return this.readLine();
+    if (name === "contains") {
+      return { k: "bool", v: this.format(args[0] ?? NIL).includes(this.format(args[1] ?? NIL)) };
+    }
+    if (name === "charAt") {
+      const text = this.format(args[0] ?? NIL);
+      const index = this.asInt(args[1] ?? { k: "int", v: 0 }, line);
+      return { k: "str", v: text[index] ?? "" };
+    }
+    if (name === "pinMode") return NIL;
+    if (name === "digitalWrite") {
+      this.emit(`pin ${this.format(args[0] ?? NIL)} ${this.format(args[1] ?? NIL)}\n`);
+      return NIL;
+    }
     if (name === "println") {
       this.emit(args.map((arg) => this.format(arg)).join(" ") + "\n");
       return NIL;
@@ -1165,8 +1180,17 @@ class Runtime {
     if (op === "&&") return { k: "bool", v: this.truthy(this.eval(l), line) && this.truthy(this.eval(r), line) };
     if (op === "||") return { k: "bool", v: this.truthy(this.eval(l), line) || this.truthy(this.eval(r), line) };
     if (op === "=" || op === "+=" || op === "-=" || op === "*=" || op === "/=") {
-      if (l.k !== "name") throw new RunError("The left side of an assignment needs to be a variable", line);
       const right = this.eval(r);
+      if (l.k === "index") {
+        const target = this.eval(l.object);
+        if (target.k !== "list") throw new RunError("Only a list can be updated by index", line);
+        const index = this.asInt(this.eval(l.index), line);
+        if (index < 0 || index >= target.items.length) throw new RunError("That index is outside the list", line);
+        const value = op === "=" ? right : this.numericOp(op[0], target.items[index], right, line);
+        target.items[index] = value;
+        return value;
+      }
+      if (l.k !== "name") throw new RunError("The left side of an assignment needs to be a variable", line);
       const value = op === "=" ? right : this.numericOp(op[0], this.lookup(l.v, line), right, line);
       this.assign(l.v, value, line);
       return value;
