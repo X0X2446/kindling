@@ -237,7 +237,13 @@ export function emitter(lang: Lang): Emitter {
     if (lang === "r") return `return(${expr})`;
     return `return ${expr}`;
   };
+  const cppWord = (name: string) => {
+    if (lang !== "cpp" && lang !== "c") return name;
+    const reserved = new Set(["double", "int", "float", "long", "short", "new", "delete", "class", "this", "operator", "template", "namespace", "bool", "char", "void", "auto", "const", "static", "return", "default", "unsigned", "signed"]);
+    return reserved.has(name) ? `${name}Value` : name;
+  };
   const call = (name: string, args: { name: string; expr: string }[]) => {
+    name = cppWord(name);
     if (lang === "bash") return `${name}${args.map((arg) => ` $${arg.expr}`).join("")}`;
     if (lang === "swift") return `${name}(${args.map((arg) => `${arg.name}: ${arg.expr}`).join(", ")})`;
     return `${name}(${args.map((arg) => arg.expr).join(", ")})`;
@@ -284,6 +290,7 @@ export function emitter(lang: Lang): Emitter {
     return braceFor(name, from, to, body, `for (let ${name} = ${from}; ${name} <= ${to}; ${name}++)`);
   };
   const fn = (name: string, params: string[], body: string) => {
+    name = cppWord(name);
     if (lang === "bash") {
       const bind = params.map((param, index) => `${param}=$${index + 1}`).join("\n");
       return `${name}() {\n${indent(`${bind}\n${body}`, 2)}\n}`;
