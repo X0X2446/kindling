@@ -1,4 +1,4 @@
-import type { Runner } from "./runtime/types";
+import type { Runner } from "@/lib/runtime/types";
 
 export function runnerLabel(runner: Runner, qt = false) {
   if (runner === "python" && qt) return "Runs in your browser · Python, with a Qt preview";
