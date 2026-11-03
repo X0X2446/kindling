@@ -2,12 +2,24 @@ import type { Check, Runner } from "@/lib/runtime/types";
 
 export type Resource = { label: string; href: string; kind: "docs" | "video" };
 
+export type Milestone = {
+  id: string;
+  title: string;
+  brief: string;
+  tier: "Beginner" | "Intermediate" | "Advanced";
+  paths: string[];
+  step: number;
+  steps: number;
+};
+
 export type Lesson = {
   slug: string;
   title: string;
   minutes: number;
   xp: number;
   project: boolean;
+  unit?: string;
+  milestone?: Milestone;
   paragraphs: string[];
   sample?: string;
   starter: string;
@@ -23,9 +35,15 @@ export type Course = {
   language: string;
   runner: Runner;
   blurb: string;
-  level: "Language" | "Specialization";
+  level: "Language" | "Specialization" | "Framework";
+  icon?: string;
+  iconFallback?: string;
+  difficulty?: "Beginner" | "Intermediate";
+  tracks?: string[];
   honesty?: string;
   qt?: boolean;
+  prelude?: string;
+  units?: { title: string; slugs: string[] }[];
   lessons: Lesson[];
   resources: Resource[];
   next: string[];

@@ -1,9 +1,15 @@
+import { runBash } from "./bash-run";
+import { cToCpp } from "./c-to-cpp";
 import { runInterpreted, type Lang } from "./engine";
+import { runPolyglot } from "./polyglot";
 import { fromWidget, parseFrames, splitWidgets } from "./preview";
 import { QT_PRELUDE } from "./python-qt";
+import { runSql } from "./sql-run";
+import { stripTypes } from "./strip-ts";
 import type { CanvasFrame, RunOutput, Runner } from "./types";
 
 const interpreted = new Set<Runner>(["java", "cpp", "csharp", "kotlin", "swift", "dart"]);
+const polyglot = new Set<Runner>(["go", "rust", "php", "ruby", "r"]);
 
 type WorkerReply = {
   id: number;
@@ -69,13 +75,29 @@ export async function runCode(
     const result = await pending;
     return { code, stdout: "", error: result.error, canvas: result.canvas ?? [] };
   }
-  if (runner === "javascript") {
+  if (runner === "javascript" || runner === "typescript") {
     const worker = freshSandbox();
     const id = nextId++;
     const pending = once(worker, id, 1500);
-    worker.postMessage({ id, mode: "js", code, stdin });
+    worker.postMessage({ id, mode: "js", code: runner === "typescript" ? stripTypes(code) : code, stdin });
     const result = await pending;
     return { code, stdout: result.stdout ?? "", error: result.error };
+  }
+  if (runner === "bash") {
+    const result = runBash(code, stdin);
+    return { code, stdout: result.stdout, error: result.error };
+  }
+  if (runner === "sql") {
+    const result = runSql(code);
+    return { code, stdout: result.stdout, error: result.error };
+  }
+  if (runner === "c") {
+    const result = runInterpreted("cpp", cToCpp(code), stdin);
+    return { code, stdout: result.stdout, error: result.error, widgets: result.widgets ? fromWidget(result.widgets) : null, frames: parseFrames(result.stdout) };
+  }
+  if (polyglot.has(runner)) {
+    const result = runPolyglot(runner as "go" | "rust" | "php" | "ruby" | "r", code, stdin);
+    return { code, stdout: result.stdout, error: result.error };
   }
   if (runner === "python") {
     const worker = python();

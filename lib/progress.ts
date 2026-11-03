@@ -27,6 +27,11 @@ export const ranks = [
   { name: "Forge", min: 800 },
   { name: "Beacon", min: 1200 },
   { name: "Supernova", min: 1700 },
+  { name: "Constellation", min: 2600 },
+  { name: "Comet", min: 4000 },
+  { name: "Aurora", min: 6000 },
+  { name: "Starlight", min: 9000 },
+  { name: "Horizon", min: 13000 },
 ];
 
 export function rankFor(xp: number) {
