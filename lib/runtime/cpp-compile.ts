@@ -39,7 +39,7 @@ export function compileAndRunCpp(code: string, stdin = ""): CppResult {
     const compiled = spawnSync(
       "g++",
       ["-std=c++20", "-O1", "-Wall", "-Wextra", "-fno-diagnostics-color", "-o", "prog", "main.cpp"],
-      { cwd: dir, timeout: 20000, encoding: "utf8", env: { PATH: "/usr/bin:/bin" }, maxBuffer: 1024 * 1024 },
+      { cwd: dir, timeout: 20000, encoding: "utf8", env: { PATH: "/usr/bin:/bin", NODE_ENV: "production" }, maxBuffer: 1024 * 1024 },
     );
     if (compiled.error) {
       return { stdout: "", error: compiled.error.message.includes("ETIMEDOUT") ? "The compiler took too long." : "The compiler could not start." };
@@ -68,7 +68,7 @@ export function compileAndRunCpp(code: string, stdin = ""): CppResult {
         input,
         timeout: 8000,
         encoding: "utf8",
-        env: { PATH: "/usr/bin:/bin" },
+        env: { PATH: "/usr/bin:/bin", NODE_ENV: "production" },
         maxBuffer: 1024 * 1024,
       },
     );
