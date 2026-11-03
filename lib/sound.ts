@@ -2,7 +2,6 @@ let context: AudioContext | null = null;
 
 export function playClear() {
   if (typeof window === "undefined") return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtx) return;
   if (!context) context = new AudioCtx();

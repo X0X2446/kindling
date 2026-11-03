@@ -7,7 +7,7 @@ export default function PathsPage() {
       <div>
         <h1 className="text-4xl">Paths</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          A path is an order. You can open any lesson without finishing the one before it.
+          A path is an order of courses. You can start any course. Inside a course, lessons open in order.
         </p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
