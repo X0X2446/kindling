@@ -128,15 +128,15 @@ function courseFor(flavor: Flavor): Course {
       slug: "double",
       title: "A function you can call",
       unit: "Checkpoint",
-      paragraphs: say("A function names a calculation so the rest of the program can ask for it.", "Write double and print double of the number you read."),
-      hints: ["Return n * 2.", "Print the call, not a second copy of the math."],
+      paragraphs: say("A function names a calculation so the rest of the program can ask for it.", "Write twice and print twice the number you read."),
+      hints: ["Return n * 2 from twice.", "Print the call, not a second copy of the math."],
       cases: [
         { stdin: "4\n", expected: "8\n" },
         { stdin: "0\n", expected: "0\n" },
       ],
       solve: (e) => e.program(
-        [e.readNum("n"), e.print(e.call("double", [{ name: "n", expr: "n" }]))],
-        e.fn("double", ["n"], e.ret("n * 2")),
+        [e.readNum("n"), e.print(e.call("twice", [{ name: "n", expr: "n" }]))],
+        e.fn("twice", ["n"], e.ret("n * 2")),
       ),
     },
     step(`${flavor.slug}-counter`, "Counter", "Add two numbers, then add a list of them.", "Beginner", flavor.tracks, 1, {
@@ -295,7 +295,7 @@ const flavors: Flavor[] = [
   { slug: "godot", title: "Godot with GDScript", language: "Python", lang: "python", host: "python", view: "node", verb: "pressed", noun: "node", tracks: ["games"], icon: mark("godot"), blurb: "Nodes, signals, and a small scene decision. The lessons run as Python because that syntax is the closest runner to GDScript.", note: "Godot is not open, and this is not GDScript. The lessons borrow GDScript's ideas and run them as Python. The Godot docs are the place to write real GDScript.", docs: [{ label: "GDScript reference", href: "https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html" }] },
   { slug: "roblox", title: "Roblox with Luau", language: "Lua", lang: "lua", host: "lua", view: "script", verb: "Touched", noun: "script", tracks: ["games"], icon: mark("lua", "original", "roblox"), blurb: "A script reacts to a word and a number. Roblox services are not loaded. The runner executes Lua.", note: "Luau and Roblox services are not loaded. These lessons run as Lua, which Luau extends. DataModel, remotes, and Studio stay in the Roblox docs.", docs: [{ label: "Luau", href: "https://luau.org/" }, { label: "Roblox creator docs", href: "https://create.roblox.com/docs/luau" }] },
   { slug: "love", title: "LÖVE with Lua", language: "Lua", lang: "lua", host: "lua", view: "frame", verb: "keypressed", noun: "callback", tracks: ["games"], icon: mark("lua", "original", "lua"), blurb: "A frame callback prints what it would draw. The LÖVE window is not opened.", note: "LÖVE is not running. love.draw is not called. You practice the branching a LÖVE callback would do, in Lua.", docs: [{ label: "LÖVE wiki", href: "https://love2d.org/wiki/Main_Page" }] },
-  { slug: "unreal", title: "Unreal with C++", language: "C++", lang: "cpp", host: "cpp", view: "actor", verb: "Tick", noun: "actor", tracks: ["games"], icon: mark("cplusplus", "original", "unrealengine"), blurb: "An actor ticks, reads a number, and prints a decision. Unreal Engine is not installed.", note: "Unreal Engine, Blueprints, and UObject are not here. The C++ is a teaching interpreter. The engine docs are how you leave the lesson.", docs: [{ label: "Unreal C++", href: "https://dev.epicgames.com/documentation/unreal-engine/unreal-engine-programming-and-scripting" }] },
+  { slug: "unreal", title: "Unreal with C++", language: "C++", lang: "cpp", host: "cpp", view: "actor", verb: "Tick", noun: "actor", tracks: ["games"], icon: mark("cplusplus", "original", "unrealengine"), blurb: "An actor ticks, reads a number, and prints a decision. Unreal Engine is not installed.", note: "Unreal Engine, Blueprints, and UObject are not here. The C++ compiles with g++. The engine docs are how you leave the lesson.", docs: [{ label: "Unreal C++", href: "https://dev.epicgames.com/documentation/unreal-engine/unreal-engine-programming-and-scripting" }] },
   { slug: "pygame", title: "Pygame", language: "Python", lang: "python", host: "python", view: "frame", verb: "KEYDOWN", noun: "frame", tracks: ["games"], icon: mark("python", "original", "pygame"), blurb: "A frame reads input and prints what it would draw. No window opens.", note: "Pygame is not imported and no window opens. A frame here prints a line. The Pygame docs show the real loop.", docs: [{ label: "Pygame docs", href: "https://www.pygame.org/docs/" }] },
   { slug: "pandas", title: "Pandas and NumPy", language: "Python", lang: "python", host: "python", view: "frame", verb: "mean", noun: "column", tracks: ["data"], icon: mark("pandas"), blurb: "Sums, averages, and a filter. The shapes of a column, practiced in plain Python.", note: "Pandas and NumPy are not imported. You practice the operations a column is for: sum, average, and a filter. The library docs are the next step.", docs: [{ label: "Pandas user guide", href: "https://pandas.pydata.org/docs/user_guide/index.html" }, { label: "NumPy", href: "https://numpy.org/doc/stable/user/absolute_beginners.html" }] },
   { slug: "pytorch", title: "PyTorch basics", language: "Python", lang: "python", host: "python", view: "tensor", verb: "step", noun: "step", tracks: ["data"], icon: mark("pytorch"), blurb: "A tiny training step: a total, an average, a guess. No autograd and no GPU.", note: "PyTorch is not imported. There is no tensor and no gradient. You practice the arithmetic a first training step is made of. The PyTorch tutorials are the real thing.", docs: [{ label: "PyTorch tutorials", href: "https://pytorch.org/tutorials/beginner/basics/intro.html" }] },
