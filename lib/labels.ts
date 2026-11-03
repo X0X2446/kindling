@@ -1,4 +1,4 @@
-import type { Runner } from "@/lib/runtime/types";
+import type { Runner } from "./runtime/types";
 
 export function runnerLabel(runner: Runner, qt = false) {
   if (runner === "python" && qt) return "Runs in your browser · Python, with a Qt preview";
@@ -10,6 +10,7 @@ export function runnerLabel(runner: Runner, qt = false) {
   if (runner === "canvas") return "Runs in your browser · Canvas";
   if (runner === "sql") return "Kindling SQL runner · SELECT, WHERE, COUNT, ORDER BY";
   if (runner === "bash") return "Kindling shell · echo, read, tests, and loops";
+  if (runner === "cpp") return "Compiled with g++ -std=c++20 · time limit, memory limit, no network";
   const names: Record<string, string> = {
     java: "Java",
     cpp: "C++",
