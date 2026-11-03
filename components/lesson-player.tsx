@@ -172,7 +172,7 @@ export function LessonPlayer(props: LessonPayload) {
       await finishClear(last ?? { code, stdout: "" }, `All ${tests.length} tests passed.`);
       return;
     }
-    setPhase(props.runner === "python" ? "Starting Python\u2026" : "Running\u2026");
+    setPhase(props.runner === "python" ? "Starting Python…" : "Running…");
     const result = await runCode(props.runner, code, props.stdin ?? "", props.qt, note);
     const verdict = grade(props.check, result);
     if (!verdict.ok) {
@@ -227,7 +227,7 @@ export function LessonPlayer(props: LessonPayload) {
         <span>Lesson {props.index + 1} of {props.count}</span>
         <span>{props.xp} XP</span>
         {props.project ? <span className="rounded-full bg-muted px-2 py-0.5 text-brass">Project</span> : null}
-        {props.milestone ? <span className="rounded-full bg-muted px-2 py-0.5">{props.milestone.tier} \u00b7 step {props.milestone.step} of {props.milestone.steps}</span> : null}
+        {props.milestone ? <span className="rounded-full bg-muted px-2 py-0.5">{props.milestone.tier} · step {props.milestone.step} of {props.milestone.steps}</span> : null}
         {cleared ? <span className="rounded-full bg-muted px-2 py-0.5 text-foreground">{state.completed[key]?.clean ? "Clean clear" : "Cleared"}</span> : null}
       </div>
       <h1 className="text-3xl text-balance">{props.title}</h1>
@@ -317,7 +317,7 @@ export function LessonPlayer(props: LessonPayload) {
         {ok && award ? <Confetti /> : null}
         {ok ? (
           <p className="relative text-sm">
-            {award ? <span className="text-brass">+{award} XP{shownXp !== null ? ` \u00b7 ${shownXp} total` : ""}. </span> : null}
+            {award ? <span className="text-brass">+{award} XP{shownXp !== null ? ` · ${shownXp} total` : ""}. </span> : null}
             {award === 0 ? "Still clear. " : null}
             {hintsUsed === 0 && !peeked ? "Clean clear." : "Lesson cleared."}
           </p>
