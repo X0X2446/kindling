@@ -1,7 +1,13 @@
 "use client";
 
-import { cpp, csharp, java, kotlin } from "@codemirror/legacy-modes/mode/clike";
+import { c, cpp, csharp, java, kotlin } from "@codemirror/legacy-modes/mode/clike";
+import { go } from "@codemirror/legacy-modes/mode/go";
 import { lua } from "@codemirror/legacy-modes/mode/lua";
+import { r } from "@codemirror/legacy-modes/mode/r";
+import { ruby } from "@codemirror/legacy-modes/mode/ruby";
+import { rust } from "@codemirror/legacy-modes/mode/rust";
+import { shell } from "@codemirror/legacy-modes/mode/shell";
+import { standardSQL } from "@codemirror/legacy-modes/mode/sql";
 import { swift } from "@codemirror/legacy-modes/mode/swift";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
@@ -16,13 +22,21 @@ import type { Runner } from "@/lib/runtime/types";
 function languageFor(runner: Runner): LanguageSupport | ReturnType<typeof StreamLanguage.define> {
   if (runner === "python") return python();
   if (runner === "javascript" || runner === "canvas") return javascript();
+  if (runner === "typescript") return javascript({ typescript: true });
   if (runner === "html") return html();
   if (runner === "lua") return StreamLanguage.define(lua);
   if (runner === "cpp") return StreamLanguage.define(cpp);
+  if (runner === "c") return StreamLanguage.define(c);
   if (runner === "csharp") return StreamLanguage.define(csharp);
   if (runner === "kotlin") return StreamLanguage.define(kotlin);
   if (runner === "swift") return StreamLanguage.define(swift);
-  if (runner === "dart") return StreamLanguage.define(java);
+  if (runner === "dart" || runner === "php") return StreamLanguage.define(java);
+  if (runner === "go") return StreamLanguage.define(go);
+  if (runner === "rust") return StreamLanguage.define(rust);
+  if (runner === "ruby") return StreamLanguage.define(ruby);
+  if (runner === "r") return StreamLanguage.define(r);
+  if (runner === "bash") return StreamLanguage.define(shell);
+  if (runner === "sql") return StreamLanguage.define(standardSQL);
   return StreamLanguage.define(java);
 }
 

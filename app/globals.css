@@ -157,9 +157,40 @@
   animation: kindling-rise 900ms ease-out forwards;
 }
 
+@keyframes kindling-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.72 0.17 35 / 0.55); }
+  50% { box-shadow: 0 0 0 8px oklch(0.72 0.17 35 / 0); }
+}
+
+.kindling-pulse {
+  animation: kindling-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes kindling-pop {
+  from { transform: scale(0.92); opacity: 0.4; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.kindling-pop {
+  animation: kindling-pop 400ms ease-out;
+}
+
+@keyframes kindling-confetti {
+  to { transform: translateY(140px) rotate(160deg); opacity: 0; }
+}
+
+.kindling-confetti {
+  animation: kindling-confetti 1000ms ease-out forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .kindling-spark {
+  .kindling-spark,
+  .kindling-confetti {
     animation: none;
     opacity: 0;
+  }
+  .kindling-pulse,
+  .kindling-pop {
+    animation: none;
   }
 }

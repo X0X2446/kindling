@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CourseOutline } from "@/components/course-outline";
+import { CourseRoadmap } from "@/components/roadmap";
 import { courseMinutes, courses, getCourse, recommendations } from "@/lib/curriculum";
 import { runnerLabel } from "@/lib/labels";
 
@@ -16,30 +16,42 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   if (!course) notFound();
   const next = recommendations(course.slug);
 
+  const bySlug = new Map(course.lessons.map((lesson) => [lesson.slug, lesson]));
+  const grouped = course.units?.length ? course.units : [{ title: "Lessons", slugs: course.lessons.map((lesson) => lesson.slug) }];
+  const units = grouped.map((unit) => ({
+    title: unit.title,
+    items: unit.slugs.flatMap((slug) => {
+      const lesson = bySlug.get(slug);
+      if (!lesson) return [];
+      return [{
+        slug,
+        title: lesson.title,
+        xp: lesson.xp,
+        project: lesson.project,
+        checkpoint: unit.title === "Checkpoint" || slug === "drill" || slug === "average",
+      }];
+    }),
+  }));
+
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-10 lg:grid-cols-[minmax(0,1fr)_280px]">
       <div className="flex flex-col gap-6">
-        <div>
-          <p className="text-sm text-brass">{course.level} · {course.language}</p>
-          <h1 className="mt-1 text-4xl">{course.title}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">{course.blurb}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{runnerLabel(course.runner, course.qt)} · {course.lessons.length} lessons · {courseMinutes(course)} min</p>
-        </div>
         {course.honesty ? <p className="rounded-xl border border-border bg-card p-4 text-sm leading-6 text-muted-foreground">{course.honesty}</p> : null}
-        <CourseOutline
+        <CourseRoadmap
           course={course.slug}
-          items={course.lessons.map((lesson) => ({
-            slug: lesson.slug,
-            title: lesson.title,
-            minutes: lesson.minutes,
-            xp: lesson.xp,
-            project: lesson.project,
-          }))}
+          title={course.title}
+          language={course.language}
+          level={course.level}
+          blurb={course.blurb}
+          icon={course.icon ?? ""}
+          iconFallback={course.iconFallback ?? ""}
+          units={units}
         />
       </div>
       <aside className="flex flex-col gap-6">
         <div>
-          <h2 className="text-lg">From the source</h2>
+          <p className="text-xs text-muted-foreground">{runnerLabel(course.runner, course.qt)} · {course.lessons.length} lessons · {courseMinutes(course)} min</p>
+          <h2 className="mt-4 text-lg">From the source</h2>
           <ul className="mt-3 flex flex-col gap-2">
             {course.resources.map((resource) => (
               <li key={resource.href}>

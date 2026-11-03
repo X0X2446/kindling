@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Catalog } from "@/components/catalog";
 import { ContinueLink } from "@/components/continue-link";
 import { buttonVariants } from "@/components/ui/button";
 import { courses, paths, trail } from "@/lib/curriculum";
@@ -14,11 +15,11 @@ export default function HomePage() {
             Light one small fire. Then the next.
           </h1>
           <p className="max-w-xl text-base leading-7 text-muted-foreground">
-            Kindling teaches Python, JavaScript, HTML, Java, C++, C#, Lua, Kotlin, Swift, and Dart from a blank file. Each lesson explains the idea, then asks you to make a program run. Clear it, take the XP, and keep the streak.
+            Kindling teaches a language from a blank file, then the frameworks and paths that use it. Each lesson explains the idea, then checks your program against real tests. Clear it, take the XP, and keep the streak.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <ContinueLink trail={trail} />
-            <Link href="/paths" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>Browse paths</Link>
+            <Link href="/#catalog" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>Browse courses</Link>
           </div>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5">
@@ -43,17 +44,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-2xl">Languages and what comes after</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => (
-            <Link key={course.slug} href={`/courses/${course.slug}`} className="rounded-2xl border border-border bg-card p-4 hover:bg-muted">
-              <p className="text-xs text-brass">{course.level}</p>
-              <h3 className="mt-1 text-lg">{course.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{course.blurb}</p>
-            </Link>
-          ))}
-        </div>
+      <section id="catalog" className="flex scroll-mt-20 flex-col gap-4">
+        <h2 className="text-2xl">Languages, frameworks, and paths</h2>
+        <Catalog
+          cards={courses.map((course) => ({
+            slug: course.slug,
+            title: course.title,
+            blurb: course.blurb,
+            level: course.level,
+            difficulty: course.difficulty ?? "Beginner",
+            lessons: course.lessons.length,
+            language: course.language,
+            icon: course.icon ?? "",
+            iconFallback: course.iconFallback ?? "",
+            tracks: course.tracks ?? [],
+          }))}
+          paths={paths.map((path) => ({ slug: path.slug, title: path.title }))}
+        />
       </section>
 
       <section className="grid gap-6 rounded-2xl border border-border bg-card p-6 md:grid-cols-3">
@@ -63,11 +70,11 @@ export default function HomePage() {
         </div>
         <div>
           <h2 className="text-lg">Run it here</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">Python, JavaScript, Lua, and HTML run as themselves. Java, C++, C#, Kotlin, Swift, and Dart use a teaching interpreter, so you never install a JDK.</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">Python, JavaScript, TypeScript, Lua, SQL, Bash, and HTML run here. The other languages use a teaching interpreter, so you never install a compiler.</p>
         </div>
         <div>
           <h2 className="text-lg">Then go further</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">Finish Python and Kindling points you at Qt, machine learning, or a backend. Each course links the docs and videos it was built from.</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">Finish a language and Kindling points at its frameworks and paths. Each course links the docs it was built from.</p>
         </div>
       </section>
     </div>

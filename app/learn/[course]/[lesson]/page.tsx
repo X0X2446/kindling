@@ -14,6 +14,7 @@ export default async function LessonPage({ params }: { params: Promise<{ course:
   const found = getLesson(courseSlug, lessonSlug);
   if (!found) notFound();
   const { course, lesson, index } = found;
+  const previous = course.lessons[index - 1];
   const upcoming = course.lessons[index + 1];
   const follow = upcoming ? [] : recommendations(course.slug);
 
@@ -36,10 +37,21 @@ export default async function LessonPage({ params }: { params: Promise<{ course:
       check={lesson.check}
       runner={course.runner}
       qt={Boolean(course.qt)}
+      prelude={course.prelude}
       label={runnerLabel(course.runner, course.qt)}
       honesty={course.honesty}
+      prevSlug={previous?.slug}
+      prevHref={previous ? `/learn/${course.slug}/${previous.slug}` : undefined}
+      prevTitle={previous?.title}
       nextHref={upcoming ? `/learn/${course.slug}/${upcoming.slug}` : undefined}
       nextTitle={upcoming?.title}
+      milestone={lesson.milestone ? {
+        title: lesson.milestone.title,
+        brief: lesson.milestone.brief,
+        step: lesson.milestone.step,
+        steps: lesson.milestone.steps,
+        tier: lesson.milestone.tier,
+      } : undefined}
       recommendations={follow.map((item) => ({ slug: item.slug, title: item.title, blurb: item.blurb }))}
     />
   );
