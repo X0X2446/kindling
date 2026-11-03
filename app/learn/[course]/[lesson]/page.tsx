@@ -35,6 +35,7 @@ export default async function LessonPage({ params }: { params: Promise<{ course:
       hints={lesson.hints}
       stdin={lesson.stdin}
       check={lesson.check}
+      exercises={lesson.exercises}
       runner={course.runner}
       qt={Boolean(course.qt)}
       prelude={course.prelude}

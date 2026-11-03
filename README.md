@@ -29,4 +29,10 @@ Check every lesson solution and starter:
 npm run verify
 ```
 
-Python lessons are checked with the system `python3`. Lua uses [Fengari](https://github.com/fengari-lua/fengari). In the browser, Python is [Pyodide](https://pyodide.org/), loaded on the first Python run. Java, C, C++, C#, Kotlin, Swift, Dart, Go, Rust, PHP, Ruby, and R use a teaching interpreter. SQL and Bash are teaching subsets. Logos come from Devicon, with Simple Icons when a mark is missing.
+Python lessons are checked with the system `python3`. C++ lessons are compiled with `g++ -std=c++20` and run with a time limit, a memory limit, and no network. On the hosted site that compiler runs in a sandbox. Lua uses [Fengari](https://github.com/fengari-lua/fengari). In the browser, Python is [Pyodide](https://pyodide.org/), loaded on the first Python run. Java, C, C#, Kotlin, Swift, Dart, Go, Rust, PHP, Ruby, and R use a teaching interpreter. SQL and Bash are teaching subsets. Logos come from Devicon, with Simple Icons when a mark is missing.
+
+Check one course, including every C++ solution against g++:
+
+```bash
+npx tsx scripts/verify-course.ts cpp
+```
