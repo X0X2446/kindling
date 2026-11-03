@@ -7,6 +7,7 @@ import { CanvasPreview, FramePreview, HtmlPreview, WidgetPreview } from "@/compo
 import { useProgress } from "@/components/progress-provider";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Exercise } from "@/lib/curriculum/types";
 import { lessonKey } from "@/lib/keys";
 import { playClear } from "@/lib/sound";
 import { grade } from "@/lib/runtime/grade";
@@ -30,6 +31,7 @@ export type LessonPayload = {
   hints: string[];
   stdin?: string;
   check: Check;
+  exercises?: Exercise[];
   runner: Runner;
   qt: boolean;
   prelude?: string;
@@ -48,6 +50,8 @@ export function LessonPlayer(props: LessonPayload) {
   const key = lessonKey(props.courseSlug, props.lessonSlug);
   const { ready, state, assist, clear } = useProgress();
   const [code, setCode] = useState(props.starter);
+  const [practice, setPractice] = useState<number | null>(null);
+  const [practiceHints, setPracticeHints] = useState(0);
   const [running, setRunning] = useState(false);
   const [phase, setPhase] = useState("");
   const [output, setOutput] = useState<RunOutput | null>(null);
@@ -70,7 +74,19 @@ export function LessonPlayer(props: LessonPayload) {
   const runRef = useRef<() => void>(() => {});
   const prevKey = props.prevSlug ? lessonKey(props.courseSlug, props.prevSlug) : "";
   const locked = Boolean(ready && prevKey && !state.completed[prevKey]);
-  const tests = props.check.kind === "cases" ? props.check.cases : null;
+  const active = practice !== null ? props.exercises?.[practice] : undefined;
+  const tests = active ? active.tests : props.check.kind === "cases" ? props.check.cases : null;
+
+  function loadPractice(index: number | null) {
+    setPractice(index);
+    setPracticeHints(0);
+    setCode(index === null ? props.starter : props.exercises?.[index]?.starter ?? props.starter);
+    setOutput(null);
+    setDetail("");
+    setOk(false);
+    setAward(null);
+    setConfirmPeek(false);
+  }
   const sampleIn = tests?.[0]?.stdin ?? props.stdin;
 
   useEffect(() => {
@@ -144,10 +160,19 @@ export function LessonPlayer(props: LessonPayload) {
           return;
         }
       }
+      if (active) {
+        setOutput(last ?? { code, stdout: "" });
+        setDetail(`Practice passed (${tests.length} tests). The final challenge is what clears the lesson.`);
+        setOk(false);
+        setRunning(false);
+        setPhase("");
+        setAward(null);
+        return;
+      }
       await finishClear(last ?? { code, stdout: "" }, `All ${tests.length} tests passed.`);
       return;
     }
-    setPhase(props.runner === "python" ? "Starting Python…" : "Running…");
+    setPhase(props.runner === "python" ? "Starting Python\u2026" : "Running\u2026");
     const result = await runCode(props.runner, code, props.stdin ?? "", props.qt, note);
     const verdict = grade(props.check, result);
     if (!verdict.ok) {
@@ -169,6 +194,11 @@ export function LessonPlayer(props: LessonPayload) {
   });
 
   function showHint() {
+    if (active) {
+      if (practiceHints >= active.hints.length) return;
+      setPracticeHints(practiceHints + 1);
+      return;
+    }
     if (hintsUsed >= props.hints.length) return;
     const next = hintsUsed + 1;
     setHintsUsed(next);
@@ -176,6 +206,11 @@ export function LessonPlayer(props: LessonPayload) {
   }
 
   function showSolution() {
+    if (active) {
+      setConfirmPeek(false);
+      setCode(active.solution);
+      return;
+    }
     setPeeked(true);
     setConfirmPeek(false);
     setCode(props.solution);
@@ -192,7 +227,7 @@ export function LessonPlayer(props: LessonPayload) {
         <span>Lesson {props.index + 1} of {props.count}</span>
         <span>{props.xp} XP</span>
         {props.project ? <span className="rounded-full bg-muted px-2 py-0.5 text-brass">Project</span> : null}
-        {props.milestone ? <span className="rounded-full bg-muted px-2 py-0.5">{props.milestone.tier} · step {props.milestone.step} of {props.milestone.steps}</span> : null}
+        {props.milestone ? <span className="rounded-full bg-muted px-2 py-0.5">{props.milestone.tier} \u00b7 step {props.milestone.step} of {props.milestone.steps}</span> : null}
         {cleared ? <span className="rounded-full bg-muted px-2 py-0.5 text-foreground">{state.completed[key]?.clean ? "Clean clear" : "Cleared"}</span> : null}
       </div>
       <h1 className="text-3xl text-balance">{props.title}</h1>
@@ -201,6 +236,22 @@ export function LessonPlayer(props: LessonPayload) {
         <p key={paragraph} className="text-sm leading-6 text-foreground/90">{paragraph}</p>
       ))}
       {props.sample ? <pre className="overflow-x-auto rounded-xl bg-card p-4 font-mono text-xs leading-5 text-foreground">{props.sample}</pre> : null}
+      {props.exercises?.length ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">Practice first. These runs do not award XP.</p>
+          <div className="flex flex-wrap gap-2">
+            {props.exercises.map((exercise, index) => (
+              <Button key={exercise.id} type="button" variant={practice === index ? "default" : "outline"} onClick={() => loadPractice(index)}>
+                Practice {index + 1}
+              </Button>
+            ))}
+            <Button type="button" variant={practice === null ? "default" : "outline"} onClick={() => loadPractice(null)}>
+              Final challenge
+            </Button>
+          </div>
+          {active ? <p className="text-sm leading-6">{active.prompt}</p> : null}
+        </div>
+      ) : null}
       {tests ? (
         <p className="text-sm text-muted-foreground">
           The checker runs {tests.length} tests.{sampleIn ? " The sample input below is the first one." : ""} Expected answers stay hidden until a test fails.
@@ -209,7 +260,14 @@ export function LessonPlayer(props: LessonPayload) {
       {props.milestone ? <p className="text-sm leading-6 text-muted-foreground">{props.milestone.brief}</p> : null}
       {sampleIn ? <p className="text-sm text-muted-foreground">The checker types this input: <span className="font-mono text-foreground">{sampleIn.trim()}</span></p> : null}
       {props.honesty ? <p className="rounded-xl border border-border bg-card p-4 text-sm leading-6 text-muted-foreground">{props.honesty}</p> : null}
-      {hintsUsed > 0 ? (
+      {active && practiceHints > 0 ? (
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          {active.hints.slice(0, practiceHints).map((hint, index) => (
+            <p key={hint} className="text-sm"><span className="text-brass">Hint {index + 1}. </span>{hint}</p>
+          ))}
+        </div>
+      ) : null}
+      {!active && hintsUsed > 0 ? (
         <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
           {props.hints.slice(0, hintsUsed).map((hint, index) => (
             <p key={hint} className="text-sm"><span className="text-brass">Hint {index + 1}. </span>{hint}</p>
@@ -236,10 +294,10 @@ export function LessonPlayer(props: LessonPayload) {
         <Button type="button" onClick={() => void onRun()} disabled={running || (!ready && Boolean(props.prevSlug))}>
           {running ? "Running" : "Run"}
         </Button>
-        <Button type="button" variant="outline" onClick={showHint} disabled={hintsUsed >= props.hints.length}>
+        <Button type="button" variant="outline" onClick={showHint} disabled={active ? practiceHints >= active.hints.length : hintsUsed >= props.hints.length}>
           Hint
         </Button>
-        <Button type="button" variant="ghost" onClick={() => { setCode(props.starter); setOutput(null); setDetail(""); setOk(false); setAward(null); }}>
+        <Button type="button" variant="ghost" onClick={() => { setCode(active ? active.starter : props.starter); setOutput(null); setDetail(""); setOk(false); setAward(null); }}>
           Reset
         </Button>
         {confirmPeek ? (
@@ -259,7 +317,7 @@ export function LessonPlayer(props: LessonPayload) {
         {ok && award ? <Confetti /> : null}
         {ok ? (
           <p className="relative text-sm">
-            {award ? <span className="text-brass">+{award} XP{shownXp !== null ? ` · ${shownXp} total` : ""}. </span> : null}
+            {award ? <span className="text-brass">+{award} XP{shownXp !== null ? ` \u00b7 ${shownXp} total` : ""}. </span> : null}
             {award === 0 ? "Still clear. " : null}
             {hintsUsed === 0 && !peeked ? "Clean clear." : "Lesson cleared."}
           </p>
