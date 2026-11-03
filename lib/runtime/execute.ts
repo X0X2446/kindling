@@ -1,6 +1,7 @@
 import { runBash } from "./bash-run";
 import { recordCanvas, CANVAS_TIMES } from "./canvas";
 import { cToCpp } from "./c-to-cpp";
+import { compileAndRunCpp } from "./cpp-compile";
 import { runInterpreted, type Lang } from "./engine";
 import { runJavaScript } from "./js-run";
 import { runLua } from "./lua-run";
@@ -11,7 +12,7 @@ import { runSql } from "./sql-run";
 import { stripTypes } from "./strip-ts";
 import type { RunOutput, Runner } from "./types";
 
-const interpreted = new Set<Runner>(["java", "cpp", "csharp", "kotlin", "swift", "dart"]);
+const interpreted = new Set<Runner>(["java", "csharp", "kotlin", "swift", "dart"]);
 const polyglot = new Set<Runner>(["go", "rust", "php", "ruby", "r"]);
 
 export function execute(runner: Runner, code: string, stdin = "", qt = false): RunOutput {
@@ -41,6 +42,10 @@ export function execute(runner: Runner, code: string, stdin = "", qt = false): R
   if (runner === "c") {
     const result = runInterpreted("cpp", cToCpp(code), stdin);
     return { code, stdout: result.stdout, error: result.error, widgets: result.widgets ? fromWidget(result.widgets) : null, frames: parseFrames(result.stdout) };
+  }
+  if (runner === "cpp") {
+    const result = compileAndRunCpp(code, stdin);
+    return { code, stdout: result.stdout, error: result.error, frames: parseFrames(result.stdout) };
   }
   if (polyglot.has(runner)) {
     const result = runPolyglot(runner as "go" | "rust" | "php" | "ruby" | "r", code, stdin);
