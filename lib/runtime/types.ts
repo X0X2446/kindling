@@ -1,15 +1,26 @@
 export type Runner =
   | "python"
   | "javascript"
+  | "typescript"
   | "lua"
   | "html"
   | "canvas"
   | "java"
   | "cpp"
+  | "c"
   | "csharp"
   | "kotlin"
   | "swift"
-  | "dart";
+  | "dart"
+  | "go"
+  | "rust"
+  | "php"
+  | "ruby"
+  | "r"
+  | "bash"
+  | "sql";
+
+export type TestCase = { stdin?: string; before?: string; expected: string };
 
 export type PreviewNode =
   | { type: "window"; title: string; text: string; children: PreviewNode[] }
@@ -26,6 +37,7 @@ export type CanvasFrame = { t: number; ops: DrawOp[] };
 
 export type Check =
   | { kind: "stdout"; expected: string }
+  | { kind: "cases"; cases: TestCase[] }
   | { kind: "html"; parts: string[] }
   | { kind: "widgets"; texts: string[] }
   | { kind: "app"; expected: string; texts: string[] }
