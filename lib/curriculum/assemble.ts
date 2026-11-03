@@ -7,7 +7,8 @@ import { python } from "./python";
 import { sqlCourse } from "./sql-course";
 import { arduinoCourse } from "./arduino";
 import { pythonBackend, pythonMl, pythonQt } from "./special";
-import { cpp, cppGames, csharp, java, lua } from "./systems";
+import { cppCourse, cppGamesLessons } from "@/content/cpp";
+import { cppGames, csharp, java, lua } from "./systems";
 import { languageLessons } from "./track";
 import { devopsCourse, securityCourse, web3Course } from "./topics";
 import type { Course, Lesson, PathInfo } from "./types";
@@ -117,7 +118,13 @@ export const courses: Course[] = [
   htmlCourse(),
   finish({ ...html5, tracks: ["frontend", "games"], difficulty: "Intermediate", ...icons.html5 }),
   deepen(java, "java", ["software", "backend"], ["kotlin", ...frameworkSlugs.java], icons.java),
-  deepen(cpp, "cpp", ["software", "games"], ["c", "cpp-games", ...frameworkSlugs.cpp], icons.cpp),
+  finish({
+    ...cppCourse,
+    tracks: ["software", "games"],
+    next: ["c", "cpp-games", ...frameworkSlugs.cpp],
+    difficulty: "Beginner",
+    ...icons.cpp,
+  }),
   fresh({
     slug: "c",
     title: "C from scratch",
@@ -125,7 +132,7 @@ export const courses: Course[] = [
     runner: "c",
     level: "Language",
     blurb: "A small C that prints, decides, and loops. The teaching runner translates it far enough to execute.",
-    honesty: "This is a teaching subset of C. It is translated into the same interpreter used for C++. It is not a C compiler, and it does not give you pointers as a memory model.",
+    honesty: "This is a teaching subset of C. It is translated into a small interpreter. It is not a C compiler, and it does not give you pointers as a memory model.",
     resources: [
       { kind: "docs", label: "cppreference C", href: "https://en.cppreference.com/w/c" },
     ],
@@ -133,7 +140,16 @@ export const courses: Course[] = [
     tracks: ["software", "embedded"],
     ...icons.c,
   }, "c"),
-  finish({ ...cppGames, tracks: ["games"], difficulty: "Intermediate", ...icons.cpp }),
+  finish({
+    ...cppGames,
+    blurb: "A game loop, entities, collision, and a one-dimensional coin run, compiled with g++.",
+    honesty:
+      "Each program is compiled with g++ -std=c++20 and run with a time limit, a memory limit, and no network. SDL and raylib are not linked. A frame is text: fill, rect, circle, and text between [[FRAME]] and [[END]].",
+    lessons: cppGamesLessons,
+    tracks: ["games"],
+    difficulty: "Intermediate",
+    ...icons.cpp,
+  }),
   deepen(csharp, "csharp", ["software", "backend"], frameworkSlugs.csharp, icons.csharp),
   deepen(lua, "lua", ["games", "software"], ["cpp-games", "html5-games", ...frameworkSlugs.lua], icons.lua),
   deepen(
