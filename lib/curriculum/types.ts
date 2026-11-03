@@ -1,4 +1,13 @@
-import type { Check, Runner } from "@/lib/runtime/types";
+import type { Check, Runner, TestCase } from "@/lib/runtime/types";
+
+export type Exercise = {
+  id: string;
+  prompt: string;
+  starter: string;
+  solution: string;
+  hints: string[];
+  tests: TestCase[];
+};
 
 export type Resource = { label: string; href: string; kind: "docs" | "video" };
 
@@ -14,11 +23,13 @@ export type Milestone = {
 
 export type Lesson = {
   slug: string;
+  id?: string;
   title: string;
   minutes: number;
   xp: number;
   project: boolean;
   unit?: string;
+  exercises?: Exercise[];
   milestone?: Milestone;
   paragraphs: string[];
   sample?: string;
