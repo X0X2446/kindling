@@ -23,6 +23,9 @@ export function grade(check: Check, output: RunOutput): { ok: boolean; detail: s
   if (check.kind !== "html" && output.error) {
     return { ok: false, detail: output.error };
   }
+  if (check.kind === "cases") {
+    return { ok: false, detail: "Run each test on its own." };
+  }
   if (check.kind === "stdout") {
     const actual = norm(output.stdout);
     const expected = norm(check.expected);
